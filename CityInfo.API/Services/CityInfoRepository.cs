@@ -1,15 +1,21 @@
 ﻿using CityInfo.API.DbContexts;
 using CityInfo.API.Entities;
+using CityInfo.API.Models;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Linq;
+using System.Globalization;
 
 namespace CityInfo.API.Services
 {
     public class CityInfoRepository : ICityInfoRepository
     {
         private readonly CityInfoContext _context;
-        public CityInfoRepository(CityInfoContext context)
+        private readonly WeatherApiClient _weatherApiClient;
+
+        public CityInfoRepository(CityInfoContext context, WeatherApiClient weatherApiClient)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
+            _weatherApiClient = weatherApiClient ?? throw new ArgumentNullException(nameof(weatherApiClient));
         }
         public async Task<IEnumerable<City>> GetCitiesAsync()
         {
@@ -112,12 +118,34 @@ namespace CityInfo.API.Services
 
         public async Task<bool> UserExistsAsync(string username)
         {
-            return await _context.Users.AnyAsync(c => c.UserName == username);
+            return await _context.Users.AnyAsync(c => c.Username == username);
         }
 
         public async Task<User?> GetUserAsync(string username)
         {
-            return await _context.Users.FirstOrDefaultAsync(c => c.UserName == username);
+            return await _context.Users.FirstOrDefaultAsync(c => c.Username == username);
         }
+
+        public async Task<WeatherDto> GetWeatherDataForCityAsync(string city)
+        {
+            HttpResponseMessage result = await _weatherApiClient.GetWeatherDataAsync(city);
+            if (result.IsSuccessStatusCode)
+            {
+                var imgageHost = "https://openweathermap.org/img/wn/";
+                var mResult = await result.Content.ReadAsStringAsync();
+                var resultObject = JObject.Parse(mResult);
+                string weatherDescription = resultObject["weather"][0]["description"].ToString();
+                string icon = imgageHost + resultObject["weather"][0]["icon"].ToString() + ".png";
+                string temperature = resultObject["main"]["temp"].ToString();
+                string placeName = resultObject["name"].ToString();
+                string country = resultObject["sys"]["country"].ToString();
+                weatherDescription = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(weatherDescription);
+
+                return new WeatherDto(country, weatherDescription, Convert.ToDouble(temperature), icon);
+            }
+
+            return null!;
+        }
+
     }
 }

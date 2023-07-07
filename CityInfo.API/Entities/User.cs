@@ -12,7 +12,7 @@ namespace CityInfo.API.Entities
 
         [Required]
         [MaxLength(20)]
-        public string UserName { get; set; }
+        public string Username { get; set; }
         
         [Required]
         [JsonIgnore]
@@ -31,13 +31,13 @@ namespace CityInfo.API.Entities
         public string City { get; set; }
 
         public User(
-            string userName,
+            string username,
             string password,
             string firstName,
             string lastName,
             string city)
         {
-            UserName = userName;
+            Username = username;
             Password = password;
             FirstName = firstName;
             LastName = lastName;

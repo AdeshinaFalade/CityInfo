@@ -23,27 +23,27 @@ namespace CityInfo.API.Controllers
         //we won't use this outside of this class, so we can scope it to this namespace
         public class AuthenticationRequestBody
         {
-            public string? UserName { get; set; }
+            public string? Username { get; set; }
             public string? Password { get; set; }
         }
 
         private class CityInfoUser
         {
             public int UserId { get; set; }
-            public string UserName { get; set; }
+            public string Username { get; set; }
             public string FirstName { get; set; }
             public string LastName { get; set; }
             public string City { get; set; }
 
             public CityInfoUser(
                 int userId,
-                string userName,
+                string username,
                 string firstName,
                 string lastName,
                 string city)
             {
                 UserId = userId;
-                UserName = userName;
+                Username = username;
                 FirstName = firstName;
                 LastName = lastName;
                 City = city;
@@ -71,7 +71,7 @@ namespace CityInfo.API.Controllers
         public async Task<ActionResult<LoginResponseDto>> Authenticate(AuthenticationRequestBody authenticationRequestBody)
         {
             //Step 1: validate login details
-            var user = await cityInfoRepository.GetUserAsync(authenticationRequestBody.UserName);
+            var user = await cityInfoRepository.GetUserAsync(authenticationRequestBody.Username);
             //var user = ValidateUserCredentials(authenticationRequestBody.UserName, authenticationRequestBody.Password);
             if (user == null || !BCrypt.Net.BCrypt.Verify(authenticationRequestBody.Password, user.Password))
             {
@@ -116,9 +116,9 @@ namespace CityInfo.API.Controllers
                     return BadRequest(ModelState);
                 }
 
-                if (await cityInfoRepository.UserExistsAsync(user.UserName))
+                if (await cityInfoRepository.UserExistsAsync(user.Username))
                 {
-                    return BadRequest($"User with username {user.UserName} already exists");
+                    return BadRequest($"User with username {user.Username} already exists");
                 }
                 var finalUser = mapper.Map<User>(user);
                 cityInfoRepository.RegisterUserAsync(finalUser);

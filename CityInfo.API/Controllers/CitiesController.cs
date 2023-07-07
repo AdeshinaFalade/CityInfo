@@ -52,18 +52,30 @@ namespace CityInfo.API.Controllers
         public async Task<IActionResult> GetCity(int id, bool includePointsOfInterest = false)
         {
             var city = await cityInfoRepository.GetCityAsync(id, includePointsOfInterest);
+            
 
             if (city == null)
             {
                 return NotFound();
             }
 
+            var cityWeather = await cityInfoRepository.GetWeatherDataForCityAsync(city.Name);
+
+
             if (includePointsOfInterest)
             {
-                return Ok(mapper.Map<CityDto>(city));
+                return Ok(
+                    new {
+                    city = mapper.Map<CityDto>(city),
+                    weather = cityWeather ?? new object()
+                });
             }
 
-            return Ok(mapper.Map<CityWithoutPointsOfInterestDto>(city));
+            return Ok(
+                new {
+                city = mapper.Map<CityWithoutPointsOfInterestDto>(city),
+                weather = cityWeather ?? new object()
+            });
         }
     }
 }

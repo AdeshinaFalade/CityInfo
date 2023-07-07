@@ -122,6 +122,22 @@ namespace CityInfo.API
                 setupAction.ReportApiVersions = true;
             });
 
+            builder.Services.AddHttpClient<WeatherApiClient>((sp, client) =>
+            {
+                client.BaseAddress = new Uri("https://api.openweathermap.org/data/2.5");
+                client.DefaultRequestHeaders.Add("Accept", "application/json");
+                //client.DefaultRequestHeaders.Add("User-Agent", "YourAppName");
+            });
+
+            builder.Services.AddScoped(sp =>
+            {
+                var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
+                var httpClient = httpClientFactory.CreateClient();
+                var apiKey = builder.Configuration["Authentication:ApiKey"]; // Replace with your actual OpenWeather API key ApiKey
+
+                return new WeatherApiClient(httpClient, apiKey);
+            });
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.

@@ -7,7 +7,7 @@ namespace CityInfo.API.Models
         [Required]
         [MinLength(2)]
         [MaxLength(20)]
-        public string UserName { get; set; }
+        public string Username { get; set; }
 
         [Required]
         [MinLength(6)]

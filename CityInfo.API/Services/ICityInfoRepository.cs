@@ -1,4 +1,5 @@
 ﻿using CityInfo.API.Entities;
+using CityInfo.API.Models;
 
 namespace CityInfo.API.Services
 {
@@ -17,5 +18,6 @@ namespace CityInfo.API.Services
         Task AddPointOfInterestForCityAsync(int cityid, PointOfInterest pointOfInterest);
         void RegisterUserAsync(User user);
         void DeletePointOfInterestForCity(PointOfInterest pointOfInterest);
+        Task<WeatherDto> GetWeatherDataForCityAsync(string city);
     }
 }
